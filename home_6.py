@@ -30,8 +30,8 @@ class Record:
         self.phones.append(phone)
 
     def remove_phone(self, phone_number_str):
-        phone = Phone(phone_number_str)
-        if phone in self.phones:
+        phone = self.find_phone(phone_number_str)
+        if phone:
             self.phones.remove(phone)
         else:
             raise ValueError(f"Номер телефону {phone_number_str} не знайдено.")
@@ -61,7 +61,7 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
 
     def find(self, name):
-        return self.data.get(name, 'None')
+        return self.data.get(name)
 
     def delete(self, name_str):
         if name_str in self.data:
