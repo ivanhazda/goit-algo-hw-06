@@ -22,50 +22,58 @@ class Phone(Field):
 
 class Record:
     def __init__(self, name):
-        self.name = Name(name).value
+        self.name = Name(name)
         self.phones = []
 
-    def add_phone(self, phone_number):
-        phone = Phone(phone_number)
-        self.phones.append(phone.value)
+    def add_phone(self, phone_number_str):
+        phone = Phone(phone_number_str)
+        self.phones.append(phone)
 
-    def remove_phone(self, phone_number):
-        if phone_number in self.phones:
-            self.phones.remove(phone_number)
+    def remove_phone(self, phone_number_str):
+        phone = Phone(phone_number_str)
+        if phone in self.phones:
+            self.phones.remove(phone)
         else:
-            raise ValueError(f"Номер телефону {phone_number} не знайдено.")
+            raise ValueError(f"Номер телефону {phone_number_str} не знайдено.")
 
-    def edit_phone(self, old_number, new_number):
-        if old_number in self.phones:
-            Phone(new_number)
-            self.phones[self.phones.index(old_number)] = new_number
-        else:
-            raise ValueError(f"Номер телефону {old_number} не знайдено.")
+    def edit_phone(self, old_number_str, new_number_str):
+        phone = self.find_phone(old_number_str)
 
-    def find_phone(self, phone_number):
-        if phone_number in self.phones:
-            return phone_number
-        return None
+        if not phone:
+            raise ValueError(f"Номер телефону {old_number_str} не знайдено.")
+        # Створюємо новий об'єкт Phone для валідації нового номера
+        new_phone = Phone(new_number_str)
+        index = self.phones.index(phone)
+        self.phones[index] = new_phone
+
+
+    def find_phone(self, phone_str):
+      for phone in self.phones:
+            if phone.value == phone_str:
+                return phone
+      return None
 
     def __str__(self):
-        return f"Ім'я контакту: {self.name}, телефони: {'; '.join(self.phones)}"
+     return f"Ім'я контакту: {self.name.value}, телефони: {'; '.join(str(phone) for phone in self.phones)}"
 
 class AddressBook(UserDict):
     def add_record(self, record):
-        self.data[record.name] = record
+        self.data[record.name.value] = record
 
     def find(self, name):
         return self.data.get(name, 'None')
 
-    def delete(self, name):
-        if name in self.data:
-            del self.data[name]
+    def delete(self, name_str):
+        if name_str in self.data:
+            del self.data[name_str]
         else:
-            raise ValueError(f"Запис для {name} не знайдено.")
+            raise ValueError(f"Запис для {name_str} не знайдено.")
 
     def __str__(self):
-        return "\n".join(str(record) for record in self.data.values())
-
+      if not self.data:
+            return "Адресна книга порожня."
+      return "\n".join(str(record) for record in self.data.values())
+      
 if __name__ == "__main__":
     # Створення нової адресної книги
     book = AddressBook()
@@ -84,11 +92,13 @@ if __name__ == "__main__":
     book.add_record(jane_record)
 
     # Виведення всіх записів у книзі
+    print ("====================")
     print(book)
 
     # Знаходження та редагування телефону для John
     john = book.find("John")
     john.edit_phone("1234567890", "1112223334")
+    print ("====================")
 
     print(john)  # Виведення: Ім'я контакту: John, телефони: 1112223333; 5555555555
 
